@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛠️ 管理後台 - 競標系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .view-toggle button {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .view-toggle button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .view-toggle button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .status {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge.active {
+            background: #4caf50;
+            color: white;
+        }
+
+        .badge.pending {
+            background: #ff9800;
+            color: white;
+        }
+
+        .badge.completed {
+            background: #9e9e9e;
+            color: white;
+        }
+
+        .badge.no_sale {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            margin: 2px;
+        }
+
+        .action-btn.danger {
+            background: #dc3545;
+        }
+
+        .action-btn.success {
+            background: #28a745;
+        }
+
+        .action-btn.warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .info-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .params-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 968px) {
+            .params-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛠️ 管理後台</h1>
+            <p>競標活動管理系統</p>
+        </header>
+
+        <div class="card">
+            <div class="view-toggle">
+                <button class="active" onclick="switchView('create')">📦 建立商品</button>
+                <button onclick="switchView('list')">📊 商品列表</button>
+            </div>
+
+            <!-- 建立商品視圖 -->
+            <div id="createView" class="view active">
+                <h2>📦 建立新商品</h2>
+                <p style="color: #666; margin-bottom: 20px;">建立商品時需設定所有參數，包括庫存 K、底價、以及競標評分權重 (α, β, γ)</p>
+
+                <div class="input-group">
+                    <label for="productName">商品名稱</label>
+                    <input type="text" id="productName" placeholder="iPhone 15 Pro">
+                </div>
+
+                <div class="input-group">
+                    <label for="inventoryLimit">庫存數量 K (得標名額)</label>
+                    <input type="number" id="inventoryLimit" placeholder="5" value="5">
+                    <small style="color: #999;">前 K 名高分者可得標</small>
+                </div>
+
+                <div class="input-group">
+                    <label for="reservePrice">底價 (最低出價)</label>
+                    <input type="number" id="reservePrice" placeholder="1000" value="1000">
+                </div>
+
+                <div class="info-box">
+                    <p><strong>評分公式:</strong> Score = α·P + β/(T+1) + γ·W</p>
+                    <p style="font-size: 0.9rem; margin-top: 5px;">
+                        P = 出價金額 | T = 反應時間(ms) | W = 會員權重 (0.5-1.0)
+                    </p>
+                </div>
+
+                <div class="params-row">
+                    <div class="input-group">
+                        <label for="alpha">α (價格權重)</label>
+                        <input type="number" step="0.01" id="alpha" placeholder="0.95" value="0.95">
+                    </div>
+                    <div class="input-group">
+                        <label for="beta">β (時間權重)</label>
+                        <input type="number" step="1" id="beta" placeholder="1000" value="1000">
+                    </div>
+                    <div class="input-group">
+                        <label for="gamma">γ (會員權重)</label>
+                        <input type="number" step="0.01" id="gamma" placeholder="0.01" value="0.01">
+                    </div>
+                </div>
+
+                <button onclick="createProduct()">🚀 建立商品</button>
+                <div id="createStatus"></div>
+            </div>
+
+            <!-- 商品列表視圖 -->
+            <div id="listView" class="view">
+                <h2>📊 商品列表</h2>
+                <div style="margin-bottom: 15px;">
+                    <button onclick="loadProducts()">🔄 重新整理</button>
+                    <button onclick="toggleSort()" style="margin-left: 10px;">
+                        <span id="sortIcon">🔽</span> <span id="sortText">排序: ID</span>
+                    </button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>名稱</th>
+                            <th>庫存 K</th>
+                            <th>底價</th>
+                            <th>狀態</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: #999;">
+                                點擊「重新整理」載入商品
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://34.81.236.6';
+        let currentSaleId = null;
+        let sortByStatus = false;  // 排序模式: false=ID, true=狀態
+
+        // 切換視圖
+        function switchView(view) {
+            const createView = document.getElementById('createView');
+            const listView = document.getElementById('listView');
+            const buttons = document.querySelectorAll('.view-toggle button');
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            if (view === 'create') {
+                createView.classList.add('active');
+                listView.classList.remove('active');
+                buttons[0].classList.add('active');
+            } else {
+                createView.classList.remove('active');
+                listView.classList.add('active');
+                buttons[1].classList.add('active');
+                loadProducts();
+            }
+        }
+
+        // 建立商品（包含活動）
+        async function createProduct() {
+            const name = document.getElementById('productName').value;
+            const inventoryLimit = parseInt(document.getElementById('inventoryLimit').value);
+            const reservePrice = parseFloat(document.getElementById('reservePrice').value);
+            const alpha = parseFloat(document.getElementById('alpha').value);
+            const beta = parseFloat(document.getElementById('beta').value);
+            const gamma = parseFloat(document.getElementById('gamma').value);
+
+            if (!name || !inventoryLimit || !reservePrice || isNaN(alpha) || isNaN(beta) || isNaN(gamma)) {
+                showStatus('createStatus', '請填寫所有欄位', 'error');
+                return;
+            }
+
+            try {
+                // 1. 建立商品
+                const productResponse = await fetch(`${API_URL}/admin/products`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        name: name,
+                        initial_stock: inventoryLimit,
+                        reserve_price: reservePrice
+                    })
+                });
+
+                const productData = await productResponse.json();
+
+                if (!productResponse.ok) {
+                    showStatus('createStatus', `❌ ${productData.detail}`, 'error');
+                    return;
+                }
+
+                const productId = productData.id;  // API 返回的是 id 而不是 product_id
+
+                // 2. 建立活動
+                const now = new Date();
+                const endTime = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+                const saleRequestBody = {
+                    product_id: productId,
+                    start_time: now.toISOString(),
+                    end_time: endTime.toISOString(),
+                    alpha: alpha,
+                    beta: beta,
+                    gamma: gamma,
+                    inventory_limit: inventoryLimit
+                };
+                console.log('Creating sale with:', saleRequestBody);
+
+                const saleResponse = await fetch(`${API_URL}/admin/sales`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(saleRequestBody)
+                });
+
+                const saleData = await saleResponse.json();
+                console.log('Sale Response Status:', saleResponse.status);
+                console.log('Sale Response Data:', saleData);
+
+                if (saleResponse.ok) {
+                    showStatus('createStatus',
+                        `✅ 商品建立成功！<br>商品 ID: ${productId}<br>庫存: ${inventoryLimit} 個`,
+                        'success'
+                    );
+
+                    // 清空表單
+                    document.getElementById('productName').value = '';
+                    document.getElementById('inventoryLimit').value = '5';
+                    document.getElementById('reservePrice').value = '1000';
+                } else {
+                    // 處理錯誤訊息 (支援不同格式)
+                    let errorMsg = saleData.detail || '';
+                    if (!errorMsg && saleData.detail && Array.isArray(saleData.detail)) {
+                        errorMsg = saleData.detail.map(e => `${e.loc.join('.')}: ${e.msg}`).join(', ');
+                    }
+                    if (!errorMsg) {
+                        errorMsg = JSON.stringify(saleData, null, 2);
+                    }
+                    console.error('Sale creation error:', saleData);
+                    showStatus('createStatus', `❌ 活動建立失敗: ${errorMsg}`, 'error');
+                }
+            } catch (error) {
+                showStatus('createStatus', `❌ 錯誤: ${error.message}`, 'error');
+            }
+        }
+
+        // 載入商品列表
+        async function loadProducts() {
+            try {
+                const [productsRes, salesRes] = await Promise.all([
+                    fetch(`${API_URL}/admin/products`),
+                    fetch(`${API_URL}/admin/sales`)
+                ]);
+
+                const products = await productsRes.json();
+                const sales = await salesRes.json();
+
+                // 建立商品到活動的映射
+                const productSaleMap = {};
+                sales.forEach(sale => {
+                    if (!productSaleMap[sale.product_id]) {
+                        productSaleMap[sale.product_id] = sale;
+                    }
+                });
+
+                const tbody = document.getElementById('productsTableBody');
+                tbody.innerHTML = '';
+
+                if (products.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">目前沒有商品</td></tr>';
+                    return;
+                }
+
+                // 為每個商品添加狀態信息
+                const productsWithStatus = products.map(product => {
+                    const sale = productSaleMap[product.id];
+                    const status = sale ? sale.status : 'no_sale';
+                    return { product, sale, status };
+                });
+
+                // 排序
+                if (sortByStatus) {
+                    // 按狀態排序: active > pending > completed > no_sale
+                    const statusOrder = { 'active': 1, 'pending': 2, 'completed': 3, 'no_sale': 4 };
+                    productsWithStatus.sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
+                } else {
+                    // 按 ID 排序 (預設)
+                    productsWithStatus.sort((a, b) => a.product.id - b.product.id);
+                }
+
+                productsWithStatus.forEach(({ product, sale, status }) => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td><strong>${product.id}</strong></td>
+                        <td>${product.name}</td>
+                        <td><strong>${sale ? sale.inventory_limit : product.current_stock}</strong></td>
+                        <td>$${product.reserve_price}</td>
+                        <td><span class="badge ${status}">${getStatusText(status)}</span></td>
+                        <td>
+                            ${status === 'pending' ? `
+                                <button class="action-btn success" onclick="startSale(${sale.id})">▶️ 開始競標</button>
+                            ` : ''}
+                            ${status === 'active' ? `
+                                <button class="action-btn danger" onclick="endSale(${sale.id}, ${product.id})">⏹️ 停止競標</button>
+                            ` : ''}
+                            ${status === 'completed' ? `
+                                <span style="color: #999;">✅ 已結束</span>
+                            ` : ''}
+                            ${sale ? `
+                                <button class="action-btn danger" onclick="deleteSale(${sale.id})">🗑️ 刪除</button>
+                            ` : ''}
+                        </td>
+                    `;
+                });
+            } catch (error) {
+                console.error('載入商品失敗:', error);
+            }
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': '待開始',
+                'active': '競標中',
+                'completed': '已結束',
+                'no_sale': '無活動'
+            };
+            return statusMap[status] || status;
+        }
+
+        // 切換排序模式
+        function toggleSort() {
+            sortByStatus = !sortByStatus;
+
+            // 更新按鈕文字和圖標
+            const sortIcon = document.getElementById('sortIcon');
+            const sortText = document.getElementById('sortText');
+
+            if (sortByStatus) {
+                sortIcon.textContent = '📊';
+                sortText.textContent = '排序: 狀態';
+            } else {
+                sortIcon.textContent = '🔽';
+                sortText.textContent = '排序: ID';
+            }
+
+            // 重新載入商品列表
+            loadProducts();
+        }
+
+        // 開始競標
+        async function startSale(saleId) {
+            if (!confirm('確定要開始競標嗎？\n競標開始後，用戶即可開始出價。')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/admin/sales/${saleId}/start`, {
+                    method: 'PATCH'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(`✅ 競標已開始！活動 ID: ${saleId}`);
+                    loadProducts();
+                } else {
+                    alert(`❌ ${data.detail}`);
+                }
+            } catch (error) {
+                alert(`❌ 錯誤: ${error.message}`);
+            }
+        }
+
+        // 停止競標
+        async function endSale(saleId, productId) {
+            if (!confirm('確定要停止競標嗎？\n這將會:\n1. 停止接受新出價\n2. 確定前 K 名得標者\n3. 扣減商品庫存\n\n此操作無法恢復！')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/admin/sales/${saleId}/end`, {
+                    method: 'PATCH'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(`✅ 競標已停止！\n\n得標人數: ${data.winners_count}\n剩餘庫存: ${data.remaining_stock}`);
+                    loadProducts();
+                } else {
+                    alert(`❌ ${data.detail}`);
+                }
+            } catch (error) {
+                alert(`❌ 錯誤: ${error.message}`);
+            }
+        }
+
+        // 刪除活動
+        async function deleteSale(saleId) {
+            if (!confirm(`確定要刪除活動 ${saleId} 嗎？\n此操作無法恢復，將會刪除所有相關的出價記錄。`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/admin/sales/${saleId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(`✅ 活動 ${saleId} 已刪除！`);
+                    loadProducts();
+                } else {
+                    alert(`❌ ${data.detail}`);
+                }
+            } catch (error) {
+                alert(`❌ 錯誤: ${error.message}`);
+            }
+        }
+
+        function showStatus(elementId, message, type) {
+            const statusDiv = document.getElementById(elementId);
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        // 頁面載入時自動載入列表
+        window.onload = () => {
+            loadProducts();
+        };
+    </script>
+</body>
+</html>

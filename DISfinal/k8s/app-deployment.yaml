@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flash-sale-api
+  namespace: flash-sale
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: flash-sale-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 10
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: flash-sale-api
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: api
+        image: gcr.io/disfinal-480207/flash-sale-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: flash-sale-secrets
+              key: DATABASE_URL
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: flash-sale-secrets
+              key: REDIS_URL
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: flash-sale-secrets
+              key: SECRET_KEY
+        - name: ALGORITHM
+          valueFrom:
+            secretKeyRef:
+              name: flash-sale-secrets
+              key: ALGORITHM
+        - name: ACCESS_TOKEN_EXPIRE_HOURS
+          valueFrom:
+            secretKeyRef:
+              name: flash-sale-secrets
+              key: ACCESS_TOKEN_EXPIRE_HOURS
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flash-sale-api-service
+  namespace: flash-sale
+spec:
+  selector:
+    app: flash-sale-api
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
+  type: LoadBalancer

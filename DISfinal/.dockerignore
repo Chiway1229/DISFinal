@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.csv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+*.md
+*.pdf
+
+# Frontend
+frontend/
+node_modules/
+
+# Load tests
+load_test.py
+load_tests/
+test_system.py
+
+# Claude
+.claude/
+CLAUDE.md
+IMPLEMENTATION_PLAN.md
+REQUIREMENTS_CHECKLIST.md
+LOAD_TEST_REPORT.md
+
+# Local development
+.env.local
+.env.*.local
